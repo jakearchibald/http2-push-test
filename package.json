@@ -8,5 +8,8 @@
   "dependencies": {
     "express": "^4.15.2",
     "spdy": "^3.4.4"
+  },
+  "scripts": {
+    "dev": "DEBUG=spdy:server node index.js"
   }
 }
