@@ -21,6 +21,35 @@ app.get('/no-cache/data', (req, res) => {
   res.send('NOT FROM PUSH');
 });
 
+app.get('/preload-img/cat.svg', (req, res) => {
+  res.set('Content-Type', 'image/svg+xml');
+  res.set('Cache-Control', 'no-cache');
+  res.sendFile(__dirname + '/resources/cat.svg');
+});
+
+app.get('/preload-fetch/data', (req, res) => {
+  res.set('Content-Type', 'text/plain');
+  res.set('Cache-Control', 'no-cache');
+  let errored = false;
+
+  res.on('error', err => {
+    errored = true;
+    console.log('Send error', err);
+  });
+
+  (async () => {
+    for (let i = 0; i < 4; i++) {
+      if (errored) break;
+      const val = Math.random().toString();
+      console.log(`sending: ${val}`);
+      res.write(val + '\n');
+      await wait(1000);
+    }
+    res.end();
+    console.log('send complete')
+  })();
+});
+
 function wait(ms) {
   return new Promise(r => setTimeout(r, ms));
 }
@@ -135,6 +164,18 @@ app.get('/no-cache/', (req, res) => {
   res.set('Content-Type', 'text/html');
   res.set('Cache-Control', 'no-store');
   res.sendFile(__dirname + '/resources/fetch.html');
+});
+
+app.get('/preload-fetch/', (req, res) => {
+  res.set('Content-Type', 'text/html');
+  res.set('Cache-Control', 'no-store');
+  res.sendFile(__dirname + '/resources/preload-fetch.html');
+});
+
+app.get('/preload-img/', (req, res) => {
+  res.set('Content-Type', 'text/html');
+  res.set('Cache-Control', 'no-store');
+  res.sendFile(__dirname + '/resources/preload-img.html');
 });
 
 const server = spdy.createServer(options, app);
