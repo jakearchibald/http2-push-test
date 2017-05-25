@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<p><a href="./">Reload</a></p>
+<p><button class="creds">Fetch with credentials</button></p>
+<p><button class="no-creds">Fetch without credentials</button></p>
+<p><button class="xhr">Fetch with XHR</button></p>
+<script>
+  document.querySelector('.creds').onclick = () => {
+    fetch('data', {
+      credentials: 'include'
+    }).then(r => r.text())
+      .then(text => console.log(text))
+      .catch(err => console.log('failed', err));
+  };
+
+  document.querySelector('.no-creds').onclick = () => {
+    fetch('data')
+      .then(r => r.text())
+      .then(text => console.log(text))
+      .catch(err => console.log('failed', err));
+  };
+
+  document.querySelector('.xhr').onclick = () => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', 'data');
+    xhr.onload = () => {
+      console.log(xhr.responseText);
+    };
+    xhr.send();
+  };
+</script>

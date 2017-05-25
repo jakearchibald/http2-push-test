@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<p><a href="./">Reload</a></p>
+<p><button class="show">Show img</button></p>
+<script>
+  document.querySelector('.show').onclick = () => {
+    const img = new Image();
+    document.body.appendChild(img);
+    img.src = 'cat.svg';
+  };
+</script>
