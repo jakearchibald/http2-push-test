@@ -27,7 +27,13 @@ app.get('/preload-img/cat.svg', (req, res) => {
   res.sendFile(__dirname + '/resources/cat.svg');
 });
 
-app.get('/preload-fetch/data', (req, res) => {
+app.get('/preload-and-push/img/cat.svg', (req, res) => {
+  res.set('Content-Type', 'image/svg+xml');
+  res.set('Cache-Control', 'no-cache');
+  res.sendFile(__dirname + '/resources/cat.svg');
+});
+
+app.get('/:dir/data', (req, res) => {
   res.set('Content-Type', 'text/plain');
   res.set('Cache-Control', 'no-cache');
   let errored = false;
@@ -77,7 +83,7 @@ app.get('/img/', (req, res) => {
   });
 
   (async() => {
-    await wait(1000);
+    await wait(5000);
     if (!pushErrored) {
       fs.createReadStream(__dirname + '/resources/cat.svg').pipe(stream);
     }
@@ -127,6 +133,48 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/resources/fetch.html');
 });
 
+app.get('/cross-origin-push/', (req, res) => {
+  const stream = res.push('/', {
+    host: 'www.example.com:3001',
+    request: {
+      accept: '*/*'
+    },
+    response: {
+      'content-type': 'text/plain',
+      'cache-control': 'max-age=3000',
+      'Access-Control-Allow-Origin': 'https://localhost:3001',
+      'Access-Control-Allow-Credentials': 'true'
+    }
+  });
+
+  let pushErrored = false;
+
+  stream.on('error', err => {
+    pushErrored = true;
+    console.log('Push error', err);
+  });
+
+  stream.on('data', chunk => {
+    console.log('Push data', chunk);
+  });
+
+  (async () => {
+    for (let i = 0; i < 4; i++) {
+      if (pushErrored) break;
+      const val = Math.random().toString();
+      console.log(`pushing: ${val}`);
+      stream.write(val + '\n');
+      await wait(1000);
+    }
+    stream.end();
+    console.log('push complete')
+  })();
+
+  res.set('Content-Type', 'text/html');
+  res.set('Cache-Control', 'no-store');
+  res.sendFile(__dirname + '/resources/cross-origin-push.html');
+});
+
 app.get('/no-cache/', (req, res) => {
   const stream = res.push('/no-cache/data', {
     request: {
@@ -164,6 +212,81 @@ app.get('/no-cache/', (req, res) => {
   res.set('Content-Type', 'text/html');
   res.set('Cache-Control', 'no-store');
   res.sendFile(__dirname + '/resources/fetch.html');
+});
+
+app.get('/preload-and-push/', (req, res) => {
+  const stream = res.push('/preload-and-push/data', {
+    request: {
+      accept: '*/*'
+    },
+    response: {
+      'content-type': 'text/plain',
+      'cache-control': 'no-cache'
+    }
+  });
+
+  let pushErrored = false;
+
+  stream.on('error', err => {
+    pushErrored = true;
+    console.log('Push error', err);
+  });
+
+  stream.on('data', chunk => {
+    console.log('Push data', chunk);
+  });
+
+  (async () => {
+    for (let i = 0; i < 4; i++) {
+      if (pushErrored) break;
+      const val = Math.random().toString();
+      console.log(`pushing: ${val}`);
+      stream.write(val + '\n');
+      await wait(1000);
+    }
+    stream.end();
+    console.log('push complete')
+  })();
+
+  res.set('Content-Type', 'text/html');
+  res.set('Cache-Control', 'no-store');
+  res.set('Link', '</preload-and-push/data>; rel=preload');
+  res.sendFile(__dirname + '/resources/fetch.html');
+});
+
+app.get('/preload-and-push/img/', (req, res) => {
+  const stream = res.push('/preload-and-push/img/cat.svg', {
+    request: {
+      accept: '*/*'
+    },
+    response: {
+      'content-type': 'image/svg+xml',
+      'cache-control': 'no-cache'
+    }
+  });
+
+  let pushErrored = false;
+
+  stream.on('error', err => {
+    pushErrored = true;
+    console.log('Push error', err);
+  });
+
+  stream.on('data', chunk => {
+    console.log('Push data', chunk);
+  });
+
+  (async () => {
+    await wait(5000);
+    if (!pushErrored) {
+      fs.createReadStream(__dirname + '/resources/cat.svg').pipe(stream);
+    }
+  })();
+
+  res.set('Content-Type', 'text/html');
+  res.set('Cache-Control', 'no-store');
+  res.set('Link', '</preload-and-push/img/cat.svg>; rel=preload');
+  res.sendFile(__dirname + '/resources/img.html');
 });
 
 app.get('/preload-fetch/', (req, res) => {

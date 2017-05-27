@@ -7,7 +7,7 @@
   "private": true,
   "dependencies": {
     "express": "^4.15.2",
-    "spdy": "^3.4.4"
+    "spdy": "https://github.com/jakearchibald/node-spdy.git#allow-setting-host"
   },
   "scripts": {
     "dev": "DEBUG=spdy:server node index.js"

@@ -1,10 +1,19 @@
 <!DOCTYPE html>
 <p><a href="./">Reload</a></p>
 <p><button class="show">Show img</button></p>
+<p><button class="iframe">Open self in iframe</button></p>
 <script>
   document.querySelector('.show').onclick = () => {
     const img = new Image();
     document.body.appendChild(img);
     img.src = 'cat.svg';
+  };
+
+  document.querySelector('.iframe').onclick = () => {
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    iframe.height = 800;
+    iframe.width = '100%';
+    iframe.src = './'
   };
 </script>

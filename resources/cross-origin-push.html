@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<p><a href="./">Reload</a></p>
+<p><button class="creds">Fetch with credentials</button></p>
+<script>
+  document.querySelector('.creds').onclick = () => {
+    fetch('https://www.example.com:3001', {
+      credentials: 'include'
+    }).then(r => r.text())
+      .then(text => console.log(text))
+      .catch(err => console.log('failed', err));
+  };
+</script>
