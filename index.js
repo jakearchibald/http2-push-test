@@ -9,13 +9,41 @@ const options = {
   cert: fs.readFileSync(__dirname + '/cert/certificate.pem')
 };
 
-app.get('/data', (req, res) => {
+
+app.get('/clear-site-data', (req, res) => {
   res.set('Content-Type', 'text/plain');
-  res.set('Cache-Control', 'no-cache');
-  res.send('NOT FROM PUSH');
+  //res.set('Clear-Site-Data', 'cache, cookies, storage');
+  res.set('Clear-Site-Data', JSON.stringify({types: ['cache', 'cookies', 'storage']}));
+  res.send('Done.');
 });
 
-app.get('/no-cache/data', (req, res) => {
+app.get('/set-cookie-a', (req, res) => {
+  res.set('Content-Type', 'text/plain');
+  res.set('Set-Cookie', 'val=a; httponly; Path=/');
+  res.send('Done.');
+});
+
+app.get('/set-cookie-b', (req, res) => {
+  res.set('Content-Type', 'text/plain');
+  res.set('Set-Cookie', 'val=b; httponly; Path=/');
+  res.send('Done.');
+});
+
+[
+  '/data',
+  '/no-cache/data',
+  '/no-store/data',
+  '/vary-cookie/data',
+  '/push-post/data'
+].forEach(url => {
+  app.get(url, (req, res) => {
+    res.set('Content-Type', 'text/plain');
+    res.set('Cache-Control', 'no-cache');
+    res.send('NOT FROM PUSH');
+  });
+});
+
+app.post('/push-post/data', (req, res) => {
   res.set('Content-Type', 'text/plain');
   res.set('Cache-Control', 'no-cache');
   res.send('NOT FROM PUSH');
@@ -198,6 +226,126 @@ app.get('/no-cache/', (req, res) => {
   });
 
   (async () => {
+    for (let i = 0; i < 4; i++) {
+      if (pushErrored) break;
+      const val = Math.random().toString();
+      console.log(`pushing: ${val}`);
+      stream.write(val + '\n');
+      await wait(1000);
+    }
+    stream.end();
+    console.log('push complete')
+  })();
+
+  res.set('Content-Type', 'text/html');
+  res.set('Cache-Control', 'no-store');
+  res.sendFile(__dirname + '/resources/fetch.html');
+});
+
+app.get('/vary-cookie/', (req, res) => {
+  const stream = res.push('/vary-cookie/data', {
+    request: {
+      accept: '*/*',
+      cookie: 'val=a'
+    },
+    response: {
+      'content-type': 'text/plain',
+      'cache-control': 'no-cache',
+      'vary': 'Cookie'
+    }
+  });
+
+  let pushErrored = false;
+
+  stream.on('error', err => {
+    pushErrored = true;
+    console.log('Push error', err);
+  });
+
+  stream.on('data', chunk => {
+    console.log('Push data', chunk);
+  });
+
+  (async () => {
+    for (let i = 0; i < 4; i++) {
+      if (pushErrored) break;
+      const val = Math.random().toString();
+      console.log(`pushing: ${val}`);
+      stream.write(val + '\n');
+      await wait(1000);
+    }
+    stream.end();
+    console.log('push complete')
+  })();
+
+  res.set('Content-Type', 'text/html');
+  res.set('Cache-Control', 'no-store');
+  res.sendFile(__dirname + '/resources/fetch.html');
+});
+
+app.get('/push-post/', (req, res) => {
+  const stream = res.push('/vary-cookie/data', {
+    method: 'POST',
+    request: {
+      accept: '*/*'
+    },
+    response: {
+      'content-type': 'text/plain',
+      'cache-control': 'no-cache'
+    }
+  });
+
+  let pushErrored = false;
+
+  stream.on('error', err => {
+    pushErrored = true;
+    console.log('Push error', err);
+  });
+
+  stream.on('data', chunk => {
+    console.log('Push data', chunk);
+  });
+
+  (async () => {
+    for (let i = 0; i < 4; i++) {
+      if (pushErrored) break;
+      const val = Math.random().toString();
+      console.log(`pushing: ${val}`);
+      stream.write(val + '\n');
+      await wait(1000);
+    }
+    stream.end();
+    console.log('push complete')
+  })();
+
+  res.set('Content-Type', 'text/html');
+  res.set('Cache-Control', 'no-store');
+  res.sendFile(__dirname + '/resources/fetch.html');
+});
+
+app.get('/no-store/', (req, res) => {
+  const stream = res.push('/no-store/data', {
+    request: {
+      accept: '*/*'
+    },
+    response: {
+      'content-type': 'text/plain',
+      'cache-control': 'no-store'
+    }
+  });
+
+  let pushErrored = false;
+
+  stream.on('error', err => {
+    pushErrored = true;
+    console.log('Push error', err);
+  });
+
+  stream.on('data', chunk => {
+    console.log('Push data', chunk);
+  });
+
+  (async() => {
     for (let i = 0; i < 4; i++) {
       if (pushErrored) break;
       const val = Math.random().toString();

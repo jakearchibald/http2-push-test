@@ -18,7 +18,7 @@ This will set up an HTTP/2 HTTPS server on port 3001. Edit `index.js` if you wan
 
 # `/`
 
-This slowly pushes `/data` which contains 3 random numbers, and has `max-age=3000`.
+This slowly pushes `/data` which contains 4 random numbers, and has `max-age=3000`.
 
 `/data`, if requested from the server, returns "NOT FROM PUSH".
 
@@ -26,7 +26,11 @@ The page contains various ways to fetch `/data`, or refetch the page itself.
 
 # `/no-cache/`
 
-As `/`, but the pushed resource doesn't have `max-age`.
+As `/`, but the pushed resource has `no-cache` rather than `max-age`.
+
+# `/no-store/`
+
+As `/`, but the pushed resource has `no-store` rather than `max-age`.
 
 # `/img/`
 
@@ -36,9 +40,17 @@ This slowly pushes `/img/cat.svg` and has `max-age=3000`.
 
 # `/cross-origin-push/`
 
-This slowly pushes 3 random numbers to `https://www.example.com:3001/`, and has `max-age=3000`. `www.example.com` is a SAN, so the push should work.
+This slowly pushes 4 random numbers to `https://www.example.com:3001/`, and has `max-age=3000`. `www.example.com` is a SAN, so the push should work.
 
 The page contains button to fetch `https://www.example.com:3001/`, which won't pick up the pushed resource unless you use your hosts file to make `example.com` resolve to `127.0.0.1`.
+
+# `/vary-cookie/`
+
+This slowly pushes 4 random numbers. The push's request has `Cookie: val=a`, and the response has `Vary: Cookie`. Buttons on the page allow you to set the cookie.
+
+# `/push-post/`
+
+This slowly pushes 4 random numbers. The push's request has a method of `POST`.
 
 # `/preload-fetch/`
 
