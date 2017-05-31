@@ -8,6 +8,7 @@
   <button class="xhr">Fetch with XHR</button>
   <button class="img">Fetch as image</button>
   <button class="sheet">Fetch as stylesheet</button>
+  <button class="script">Fetch as script</button>
   <button class="iframe">Open self in iframe</button>
   <button class="iframe-data">Open data in iframe</button>
   <button class="iframe-data-sandbox">Open data in sandbox iframe</button>
@@ -58,6 +59,13 @@
     link.href = 'data';
     document.head.appendChild(link);
     document.head.removeChild(link);
+  };
+
+  document.querySelector('.script').onclick = () => {
+    const script = document.createElement('script');
+    script.src = 'data';
+    document.head.appendChild(script);
+    document.head.removeChild(script);
   };
 
   document.querySelector('.xhr').onclick = () => {

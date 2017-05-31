@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <p><a href="./">Reload</a></p>
-<p><button class="creds">Fetch with credentials</button></p>
+<p>
+  <button class="creds">Fetch with credentials</button>
+  <button class="img">Fetch as image</button>
+  <button class="sheet">Fetch as stylesheet</button>
+  <button class="iframe-data">Open data in iframe</button>
+</p>
 <script>
   document.querySelector('.creds').onclick = () => {
     fetch('https://www.example.com:3001', {
@@ -8,5 +13,25 @@
     }).then(r => r.text())
       .then(text => console.log(text))
       .catch(err => console.log('failed', err));
+  };
+
+  document.querySelector('.img').onclick = () => {
+    new Image().src = 'https://www.example.com:3001';
+  };
+
+  document.querySelector('.sheet').onclick = () => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://www.example.com:3001';
+    document.head.appendChild(link);
+    document.head.removeChild(link);
+  };
+
+  document.querySelector('.iframe-data').onclick = () => {
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    iframe.height = 200;
+    iframe.width = '100%';
+    iframe.src = 'https://www.example.com:3001';
   };
 </script>
